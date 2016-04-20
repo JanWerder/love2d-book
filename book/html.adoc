@@ -28,6 +28,7 @@ include::world1_the-prototype/05_better-steering.adoc[]
 include::world2.adoc[]
 
 include::world2_the-redo/01_starting-over.adoc[]
+include::world2_the-redo/02_the_asteroids.adoc[]
 
 include::world3.adoc[]
 

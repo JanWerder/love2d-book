@@ -1,0 +1,39 @@
+=== The Asteroids
+
+With our full redo we'll start a bit differently than with the prototype. The
+first task we are going to tackle will be the asteroids. To achieve a clean
+impmentation we'll use the <<world3-, Object Pools>> as described in
+<<world3, The Cookbook>>. But don't worry, you won't have to read ahead,
+everything you need will be explained right here. You should use
+<<world3, The Cookbook>> more as a reference chapter to read in further
+ into a specific topic.
+
+So let's get started: For our Asteroids game we need a bunch of asteroids all
+controlled independently with it's own direction and speed. For this purpose of
+managing multiple similar objects we can use objects pools.
+
+[source,lua]
+----
+asteroids = {}
+for i=1,20 do
+  local asteroid = {
+    x = math.random(0, love.graphics.getWidth()-10)
+    y = math.random(0, love.graphics.getHeight()-10)
+    speed = math.random(0,10)
+    direction = math.random(0,360)
+  }
+  table.insert(asteroids, asteroid)
+end
+
+function love.draw()
+  for _,asteroid in ipairs(asteroids) do
+    asteroid:draw()
+  end
+end
+
+function love.update(dt)
+  for _,asteroid in ipairs(asteroids) do
+    asteroid:update(dt)
+  end
+end
+----

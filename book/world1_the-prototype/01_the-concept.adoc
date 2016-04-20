@@ -38,7 +38,7 @@ we use differs, but we could as well do with this "definition".
 ==== The Asteroids
 Asteroids move in a straight line, also wrapping around the Screen in the same way
 the spaceship does.
-They larger an asteroid is, the slower it should move.
+The larger an asteroid is, the slower it should move.
 Therefore all we need to know about every asteroid is his `position`, `size` and his `rotation`.
 
 Whenever an asteroid is hit, we split it into two smaller ones, unless it is already
