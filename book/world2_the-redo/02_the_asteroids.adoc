@@ -14,15 +14,71 @@ managing multiple similar objects we can use objects pools.
 
 [source,lua]
 ----
-asteroids = {}
-for i=1,20 do
-  local asteroid = {
-    x = math.random(0, love.graphics.getWidth()-10)
-    y = math.random(0, love.graphics.getHeight()-10)
-    speed = math.random(0,10)
-    direction = math.random(0,360)
+local Asteroid = {}
+Asteroid.__index = Asteroid
+
+setmetatable(Asteroid, {
+  __call = function (cls, ...)
+    return cls.new(...)
+  end,
+})
+
+
+function Asteroid.new(x,y,speed,rotation)
+  local self = setmetatable({}, Asteroid)
+  self.x = x
+  self.y = y
+  self.speed = speed
+  self.rotation = rotation
+  image = love.graphics.newImage("AsteroidMiddle2.png")
+  local vertices = {
+    {
+      0, 0,
+      0, 0,
+      255, 0, 0,
+    },
+    {
+      image:getWidth(), 0,
+      1, 0,
+      0, 255, 0
+    },
+    {
+      image:getWidth(), image:getHeight(),
+      1, 1,
+      0, 0, 255
+    },
+    {
+      0, image:getHeight(),
+      0, 1,
+      255, 255, 0
+    },
   }
-  table.insert(asteroids, asteroid)
+
+  mesh = love.graphics.newMesh(vertices, "fan")
+  mesh:setTexture(image)
+
+  return self
+end
+
+function Asteroid:update(dt)
+
+end
+
+function Asteroid:draw()
+  love.graphics.draw(mesh, self.x, self.y, self.rotation)
+end
+
+function love.load()
+  asteroids = {}
+  for i=1,20 do
+    local asteroid = Asteroid.new(
+      math.random(0, love.graphics.getWidth()-50),
+      math.random(0, love.graphics.getHeight()-50),
+      math.random(0,10),
+      math.random(0,360)
+    )
+    table.insert(asteroids, asteroid)
+  end
 end
 
 function love.draw()
@@ -36,4 +92,31 @@ function love.update(dt)
     asteroid:update(dt)
   end
 end
+
 ----
+
+So as you can see, this first step added a bunch of new concepts to the mix, which we
+will try clear up now.
+
+First we introduced a simple object orientated programming style. Lua itself, as you might know,
+does not support objects by default. Instead lua offers tables with a meta programming layer.
+For our game we used this meta layer to create simple object-like tables that we can use. It is
+important to note that there a more sophisticated implementation out there and you might want to
+choose one of them if you need additional OOP features. But for our example this is just fine.
+
+First we create a table to represent the class and contain its methods. We also make it double
+as the metatable for instances, but you can use a separate instance metatable if you like. In the
+constructor, we create the instance (an empty table), give it the metatable, fill in fields, and return the new instance.
+In the methods, we use a "self" parameter to get the instance to operate on. This is so common that Lua offers the : syntax
+sugar that calls a function entry from a table and inserts the table itself before the first arg.
+
+Then we add a metatable to the class table that has the __call metamethod, which is triggered when a value is called
+like a function. We make it call the class's constructor, so we can just call the Class with the parameters without a special constructor like "new".
+
+The important part about the class addition is that you understand how you can use it to your advantage, rather than how it works on a technical level.
+At least for the first step, it should be enough for you to know that you can now make a new Asteroid via the Asteroid() call, that can act as a individual instance.
+This means that whenever you manipulate a variable of an asteroid it just changes for this specific instance of the asteroid. When we follow that tought we can see
+that we can now control multiple instances of the same object with the same code but different attributes like the position or rotation.
+
+At the same time we introduced the wiki:love.graphics.newMesh[] to our game. A Mesh is essentially a 2D polygon with a few additional features. For example you can texture it,
+as we did with the wiki:Mesh:setTexture[] call. For our asteroid we provided a table of vertices for the mesh.
